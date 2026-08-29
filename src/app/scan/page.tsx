@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Globe, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
+import { Globe, RefreshCw, AlertCircle } from 'lucide-react';
 import { ScanResponse } from '@/lib/api-types';
 import { scanWebsite, getDemoScenario, ApiError } from '@/lib/api';
+import { validateScanUrl } from '@/lib/url-validator';
 import { BackendResults } from '@/components/results/backend-results';
 
 function ScanPageContent() {
@@ -17,6 +18,7 @@ function ScanPageContent() {
   const [scanStep, setScanStep] = useState(0);
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [helperMessage, setHelperMessage] = useState<string | null>(null);
 
   const scanStages = [
     '1/5: Fetching lender website & SSL certificate...',
@@ -26,13 +28,33 @@ function ScanPageContent() {
     '5/5: Generating explainable risk verdict...',
   ];
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputUrl(val);
+    if (errorMessage) {
+      setErrorMessage(null);
+      setHelperMessage(null);
+    }
+  };
+
   const triggerScan = async (targetUrl: string, isDemo: boolean = false) => {
-    const cleanUrl = targetUrl.trim();
-    if (!cleanUrl) return;
+    // 1. Client-side URL validation BEFORE calling backend
+    const validation = validateScanUrl(targetUrl);
+    if (!validation.isValid) {
+      setErrorMessage(validation.errorMessage || 'Invalid URL — Please enter a valid website URL.');
+      setHelperMessage(validation.helperMessage || 'Example: https://example.com');
+      setIsScanning(false);
+      setScanResult(null);
+      return;
+    }
+
+    const cleanUrl = validation.cleanUrl;
+    setInputUrl(cleanUrl);
 
     setIsScanning(true);
     setScanResult(null);
     setErrorMessage(null);
+    setHelperMessage(null);
     setScanStep(0);
 
     const timer = setInterval(() => {
@@ -51,6 +73,9 @@ function ScanPageContent() {
       setIsScanning(false);
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
+        if (err.status === 400 || err.status === 422) {
+          setHelperMessage('Example: https://example.com');
+        }
       } else {
         setErrorMessage('LoanShield backend is unavailable. Start the backend and try again.');
       }
@@ -97,10 +122,24 @@ function ScanPageContent() {
             <input
               type="text"
               value={inputUrl}
-              onChange={(e) => setInputUrl(e.target.value)}
+              onChange={handleInputChange}
               placeholder="Paste lender URL (e.g. https://...)"
               className="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none font-mono"
             />
+            {inputUrl && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInputUrl('');
+                  setScanResult(null);
+                  setErrorMessage(null);
+                  setHelperMessage(null);
+                }}
+                className="text-xs text-slate-400 hover:text-slate-200 px-2 py-1"
+              >
+                Clear
+              </button>
+            )}
           </div>
 
           <button
@@ -160,25 +199,19 @@ function ScanPageContent() {
         </div>
       )}
 
-      {/* Error Message */}
+      {/* User-Friendly Error / Validation Message */}
       {errorMessage && !isScanning && (
         <div className="mx-auto max-w-xl animate-in fade-in duration-150">
-          <div className="rounded-lg bg-rose-950/40 border border-rose-800/60 p-5 text-center space-y-3">
-            <AlertCircle className="h-6 w-6 text-rose-400 mx-auto" />
-            <h3 className="text-sm font-semibold text-white">LoanShield backend is unavailable</h3>
-            <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-              {errorMessage}
-            </p>
-            <div>
-              <button
-                type="button"
-                onClick={() => triggerScan(inputUrl)}
-                className="inline-flex items-center gap-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 text-xs text-slate-200 transition-colors"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span>Retry Scan</span>
-              </button>
+          <div className="rounded-lg bg-rose-950/40 border border-rose-800/60 p-4 text-center space-y-1.5">
+            <div className="flex items-center justify-center gap-2 text-rose-300 font-semibold text-sm">
+              <AlertCircle className="h-4 w-4 text-rose-400 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
+            {helperMessage && (
+              <p className="text-xs text-slate-400 font-mono">
+                {helperMessage}
+              </p>
+            )}
           </div>
         </div>
       )}

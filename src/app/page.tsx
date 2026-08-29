@@ -3,22 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
   Globe,
   FileCheck2,
   Smartphone,
   ArrowRight,
   RefreshCw,
-  AlertCircle,
-  CheckCircle2,
-  Search
+  AlertCircle
 } from 'lucide-react';
-import { ScanResponse, Permissions } from '@/lib/api-types';
-import { scanWebsite, scanApp, getDemoScenario, ApiError } from '@/lib/api';
+import { ScanResponse } from '@/lib/api-types';
+import { scanWebsite, getDemoScenario, ApiError } from '@/lib/api';
+import { validateScanUrl } from '@/lib/url-validator';
 import { BackendResults } from '@/components/results/backend-results';
-import { cn } from '@/lib/utils';
 
 export default function HomePage() {
   const [urlInput, setUrlInput] = useState('');
@@ -26,6 +21,7 @@ export default function HomePage() {
   const [scanStep, setScanStep] = useState(0);
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [helperMessage, setHelperMessage] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   const scanStages = [
@@ -36,23 +32,44 @@ export default function HomePage() {
     'Generating explainable risk verdict...',
   ];
 
-  const handleScan = async (overrideUrl?: string, isDemoScenario: boolean = false) => {
-    const targetUrl = (overrideUrl || urlInput).trim();
-    if (!targetUrl) return;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setUrlInput(val);
+    if (errorMessage) {
+      setErrorMessage(null);
+      setHelperMessage(null);
+    }
+  };
 
-    if (overrideUrl) setUrlInput(overrideUrl);
+  const handleScan = async (overrideUrl?: string, isDemoScenario: boolean = false) => {
+    const rawUrl = overrideUrl || urlInput;
+    
+    // 1. Client-side URL validation BEFORE calling backend
+    const validation = validateScanUrl(rawUrl);
+    if (!validation.isValid) {
+      setErrorMessage(validation.errorMessage || 'Invalid URL — Please enter a valid website URL.');
+      setHelperMessage(validation.helperMessage || 'Example: https://example.com');
+      setIsScanning(false);
+      setScanResult(null);
+      return;
+    }
+
+    const cleanUrl = validation.cleanUrl;
+    if (overrideUrl) setUrlInput(cleanUrl);
+    
     setIsScanning(true);
     setScanResult(null);
     setErrorMessage(null);
+    setHelperMessage(null);
     setScanStep(0);
-    setIsDemoMode(isDemoScenario || targetUrl.includes('demo'));
+    setIsDemoMode(isDemoScenario || cleanUrl.includes('demo'));
 
     const stageTimer = setInterval(() => {
       setScanStep((prev) => (prev < scanStages.length - 1 ? prev + 1 : prev));
     }, 300);
 
     try {
-      const response = await scanWebsite(targetUrl);
+      const response = await scanWebsite(cleanUrl);
       setTimeout(() => {
         clearInterval(stageTimer);
         setIsScanning(false);
@@ -63,6 +80,9 @@ export default function HomePage() {
       setIsScanning(false);
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
+        if (err.status === 400 || err.status === 422) {
+          setHelperMessage('Example: https://example.com');
+        }
       } else {
         setErrorMessage('LoanShield backend is unavailable. Start the backend and try again.');
       }
@@ -73,6 +93,7 @@ export default function HomePage() {
     try {
       setIsScanning(true);
       setErrorMessage(null);
+      setHelperMessage(null);
       setScanResult(null);
       setScanStep(0);
 
@@ -115,7 +136,7 @@ export default function HomePage() {
               <input
                 type="text"
                 value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
+                onChange={handleInputChange}
                 placeholder="Enter loan website or app URL (e.g. https://...)"
                 className="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none font-mono"
               />
@@ -125,6 +146,8 @@ export default function HomePage() {
                   onClick={() => {
                     setUrlInput('');
                     setScanResult(null);
+                    setErrorMessage(null);
+                    setHelperMessage(null);
                   }}
                   className="text-xs text-slate-400 hover:text-slate-200 px-2 py-1"
                 >
@@ -194,25 +217,19 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* 3. ERROR MESSAGE IF BACKEND FAILS */}
+      {/* 3. USER-FRIENDLY ERROR / VALIDATION MESSAGE */}
       {errorMessage && !isScanning && (
         <section className="mx-auto max-w-xl px-4 animate-in fade-in duration-150">
-          <div className="rounded-lg bg-rose-950/40 border border-rose-800/60 p-5 text-center space-y-3">
-            <AlertCircle className="h-6 w-6 text-rose-400 mx-auto" />
-            <h3 className="text-sm font-semibold text-white">LoanShield backend is unavailable</h3>
-            <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-              {errorMessage}
-            </p>
-            <div>
-              <button
-                type="button"
-                onClick={() => handleScan()}
-                className="inline-flex items-center gap-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 text-xs text-slate-200 transition-colors"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                <span>Retry Scan</span>
-              </button>
+          <div className="rounded-lg bg-rose-950/40 border border-rose-800/60 p-4 text-center space-y-1.5">
+            <div className="flex items-center justify-center gap-2 text-rose-300 font-semibold text-sm">
+              <AlertCircle className="h-4 w-4 text-rose-400 shrink-0" />
+              <span>{errorMessage}</span>
             </div>
+            {helperMessage && (
+              <p className="text-xs text-slate-400 font-mono">
+                {helperMessage}
+              </p>
+            )}
           </div>
         </section>
       )}

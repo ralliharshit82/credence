@@ -8,6 +8,8 @@ import {
   ScanResponse,
 } from './api-types';
 
+import { validateScanUrl } from './url-validator';
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://127.0.0.1:8000';
 
@@ -46,12 +48,15 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      let errorMessage = `Server error (${response.status})`;
+      let errorMessage = 'Invalid URL — Please enter a valid website URL.';
       let errorData = null;
       try {
         errorData = await response.json();
-        if (errorData?.detail) {
-          errorMessage = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+        // Catch Pydantic 422 or technical validation errors
+        if (response.status === 422 || (typeof errorData?.detail === 'string' && (errorData.detail.includes('URL') || errorData.detail.includes('domain')))) {
+          errorMessage = 'Invalid URL — Please enter a valid website URL.';
+        } else if (typeof errorData?.detail === 'string') {
+          errorMessage = errorData.detail;
         } else if (errorData?.message) {
           errorMessage = errorData.message;
         }
@@ -85,7 +90,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     }
 
     throw new ApiError(
-      error instanceof Error ? error.message : 'An unexpected error occurred while communicating with the backend.',
+      'An unexpected error occurred while communicating with the backend.',
       500
     );
   }
@@ -95,12 +100,12 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
  * Scan a digital lender website URL via POST /scan.
  */
 export async function scanWebsite(targetUrl: string): Promise<ScanResponse> {
-  let normalizedUrl = targetUrl.trim();
-  if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-    normalizedUrl = `https://${normalizedUrl}`;
+  const validation = validateScanUrl(targetUrl);
+  if (!validation.isValid) {
+    throw new ApiError(validation.errorMessage || 'Invalid URL — Please enter a valid website URL.', 400);
   }
 
-  const payload: ScanRequest = { url: normalizedUrl };
+  const payload: ScanRequest = { url: validation.cleanUrl };
 
   return fetchApi<ScanResponse>('/scan', {
     method: 'POST',
