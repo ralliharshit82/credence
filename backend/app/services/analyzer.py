@@ -818,9 +818,9 @@ async def analyze(url: str, permissions=None, purpose: str = 'LOAN APPLICATION')
         level = 'HIGH_RISK'
     
     rec = {
-        'HIGH_RISK': 'Do not submit personal documents, OTPs, bank credentials or payments. Strong warning signals or impersonation detected.',
-        'CAUTION': 'Exercise caution and verify the lender credentials independently before sharing sensitive information.',
-        'LOWER_RISK': 'Available evidence did not reveal major warning signals, but LoanShield does not certify safety.'
+        'HIGH_RISK': 'High Risk — Do not proceed or share personal, banking, or OTP details.',
+        'CAUTION': 'Medium Risk — Proceed with caution and independently verify the lender and loan terms before sharing sensitive information.',
+        'LOWER_RISK': 'Low Risk — You may proceed, but verify the loan terms and lender details before sharing sensitive information.'
     }[level]
     
     transparency_payload = {
