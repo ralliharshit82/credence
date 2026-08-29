@@ -1,0 +1,3 @@
+entity_id,entity_name,entity_type,domain,rbi_registered,rbi_dla_association,source
+DEMO-001,Demo Cooperative Finance,synthetic_demo,https://verified-demo.loanshield.local,True,True,synthetic_demo
+DEMO-002,QuickRupee,synthetic_demo,https://quickrupee.demo,False,False,synthetic_demo

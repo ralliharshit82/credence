@@ -1,0 +1,3 @@
+entity_id,source_url,source_type,date_accessed,evidence
+DEMO-001,internal://synthetic-demo,synthetic_demo,2026-08-26,Controlled demo record; not official RBI data
+DEMO-002,internal://synthetic-demo,synthetic_demo,2026-08-26,Controlled cold-start demo record; not a real-world allegation
