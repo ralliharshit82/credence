@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldAlert,
   AlertTriangle,
   ShieldCheck,
   Globe,
   FileCheck2,
-  Network,
   Smartphone,
-  MessageSquareWarning,
   CheckCircle2,
   XCircle,
-  FileSearch,
   ExternalLink,
   ChevronDown,
   ChevronUp,
@@ -20,7 +17,14 @@ import {
   Info,
   Layers,
   Database,
-  Building2
+  Building2,
+  Volume2,
+  Square,
+  Play,
+  CheckSquare,
+  AlertOctagon,
+  Shield,
+  HelpCircle
 } from 'lucide-react';
 import { ScanResponse } from '@/lib/api-types';
 import { cn } from '@/lib/utils';
@@ -35,6 +39,23 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
   const [expandedSignal, setExpandedSignal] = useState<number | null>(0);
   const [showRawJson, setShowRawJson] = useState<Record<number, boolean>>({});
 
+  // Audio Speech Synthesis State
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi'>('en');
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      setSpeechSupported(false);
+    }
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   // Verdict Theme Helpers
   const getTheme = (level: ScanResponse['risk_level']) => {
     switch (level) {
@@ -42,46 +63,129 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
         return {
           label: 'HIGH RISK',
           icon: ShieldAlert,
-          badgeBg: 'bg-rose-950/60 text-rose-400 border-rose-800/80',
+          badgeBg: 'bg-rose-950/70 text-rose-300 border-rose-800/80',
           scoreColor: 'text-rose-400',
-          cardBorder: 'border-rose-900/40 bg-slate-900/90',
-          summaryTitle: 'Significant Risk Detected',
+          cardBorder: 'border-rose-900/50 bg-slate-900/90',
+          actionHeaderBg: 'bg-rose-950/40 border-rose-800/60',
         };
       case 'CAUTION':
         return {
           label: 'UNVERIFIED / CAUTION',
           icon: AlertTriangle,
-          badgeBg: 'bg-amber-950/60 text-amber-400 border-amber-800/80',
+          badgeBg: 'bg-amber-950/70 text-amber-300 border-amber-800/80',
           scoreColor: 'text-amber-400',
-          cardBorder: 'border-amber-900/40 bg-slate-900/90',
-          summaryTitle: 'Caution Advised',
+          cardBorder: 'border-amber-900/50 bg-slate-900/90',
+          actionHeaderBg: 'bg-amber-950/40 border-amber-800/60',
         };
       case 'LOWER_RISK':
       default:
         return {
           label: 'VERIFIED / LOWER RISK',
           icon: ShieldCheck,
-          badgeBg: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/80',
+          badgeBg: 'bg-emerald-950/70 text-emerald-300 border-emerald-800/80',
           scoreColor: 'text-emerald-400',
-          cardBorder: 'border-emerald-900/40 bg-slate-900/90',
-          summaryTitle: 'Lower Risk Profile',
+          cardBorder: 'border-emerald-900/50 bg-slate-900/90',
+          actionHeaderBg: 'bg-emerald-950/40 border-emerald-800/60',
         };
     }
   };
 
   const theme = getTheme(data.risk_level);
   const VerdictIcon = theme.icon;
+  const targetTitle = data.identity.claimed_lender || data.categories.website.title || data.categories.digital.domain;
 
-  // Derive short "Why" summary in plain human language
-  const getShortWhy = () => {
-    if (data.signals.length === 0) {
-      return 'No suspicious indicators or predatory patterns were detected on this domain. Essential digital and transparency signals were verified.';
+  // Construct Dynamic Speech Text from Actual Scan Data
+  const getSpeechScript = (lang: 'en' | 'hi') => {
+    const riskLabelEn = data.risk_level === 'HIGH_RISK' ? 'High Risk' : (data.risk_level === 'CAUTION' ? 'Caution, Unverified' : 'Lower Risk, Verified');
+    const riskLabelHi = data.risk_level === 'HIGH_RISK' ? 'उच्च जोखिम (हाई रिस्क)' : (data.risk_level === 'CAUTION' ? 'सावधानी आवश्यक' : 'कम जोखिम (सत्यापित)');
+    
+    // Top reasons
+    const topSignals = data.signals.slice(0, 3);
+    const reasonsEn = topSignals.length > 0
+      ? `Main warning reasons: ${topSignals.map((s) => s.explanation).join('. ')}.`
+      : 'No major risk warnings detected. Digital identity and transparency disclosures were verified.';
+
+    let reasonsHi = '';
+    if (topSignals.length > 0) {
+      const hiSummaries = topSignals.map(s => {
+        if (s.name.includes('impersonation')) return 'यह वेबसाइट किसी जाने-माने बैंक या वित्तीय संस्थान के नाम की नकल कर रही है';
+        if (s.name.includes('threat')) return 'यह डोमेन पहले से संदिग्ध या धोखाधड़ी के मामलों में दर्ज है';
+        if (s.name.includes('transparency')) return 'वेबसाइट पर प्राइवेसी पॉलिसी, नियम और शिकायत निवारण अधिकारी की जानकारी उपलब्ध नहीं है';
+        if (s.name.includes('retrieval')) return 'वेबसाइट सर्वर से कनेक्ट नहीं हो सकी और जानकारी की पुष्टि नहीं हुई';
+        if (s.name.includes('language')) return 'आक्रामक या भ्रामक लोन मार्केटिंग भाषा पाई गई है';
+        if (s.name.includes('permission')) return 'मोबाइल कॉन्टैक्ट्स या मैसेज की अनावश्यक परमिशन मांगी जा रही है';
+        return s.explanation;
+      });
+      reasonsHi = `मुख्य कारण: ${hiSummaries.join('। ')}।`;
+    } else {
+      reasonsHi = 'कोई चेतावनी संकेत नहीं मिले हैं। आवश्यक प्राइवेसी और पारदर्शिता विवरण उपलब्ध हैं।';
     }
-    const highSignals = data.signals.filter((s) => s.severity === 'HIGH');
-    if (highSignals.length > 0) {
-      return `Critical warning signals detected: ${highSignals.map((s) => s.name).join(', ')}.`;
+
+    if (lang === 'hi') {
+      let hiAction = '';
+      if (data.risk_level === 'HIGH_RISK') {
+        hiAction = 'सलाह: इस वेबसाइट पर अपने आधार, पैन कार्ड, बैंक विवरण या कोई भी ओटीपी साझा न करें। कोई भी अग्रिम फीस न दें।';
+      } else if (data.risk_level === 'CAUTION') {
+        hiAction = 'सलाह: आवेदन करने से पहले ऋणदाता के आधिकारिक पंजीकरण की स्वतंत्र रूप से पुष्टि करें।';
+      } else {
+        hiAction = 'सलाह: आगे बढ़ने से पहले सभी लोन नियमों और ब्याज दरों की सावधानीपूर्वक जांच कर लें।';
+      }
+
+      return `लोनशील्ड सुरक्षा रिपोर्ट। लक्ष्य: ${targetTitle}। जोखिम स्तर: ${riskLabelHi}। रिस्क स्कोर: 100 में से ${data.risk_score}। ${reasonsHi} ${hiAction}`;
     }
-    return `Warning signals detected: ${data.signals.map((s) => s.name).join(', ')}.`;
+
+    return `LoanShield Security Assessment for ${targetTitle}. Risk Level: ${riskLabelEn}. Risk Score: ${data.risk_score} out of 100. ${reasonsEn} Recommended Action: ${data.recommendation}`;
+  };
+
+  const handleSpeakToggle = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const script = getSpeechScript(selectedLang);
+    const utterance = new SpeechSynthesisUtterance(script);
+    utteranceRef.current = utterance;
+
+    // Set voice language
+    utterance.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-IN';
+    utterance.rate = selectedLang === 'hi' ? 0.95 : 1.0;
+    utterance.pitch = 1.0;
+
+    // Select suitable voice if available
+    const voices = window.speechSynthesis.getVoices();
+    if (selectedLang === 'hi') {
+      const hindiVoice = voices.find((v) => v.lang.includes('hi') || v.name.toLowerCase().includes('hindi'));
+      if (hindiVoice) utterance.voice = hindiVoice;
+    } else {
+      const engVoice = voices.find((v) => v.lang.includes('en-IN') || v.lang.includes('en-GB') || v.lang.includes('en-US'));
+      if (engVoice) utterance.voice = engVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleStopSpeech = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const handleLanguageChange = (lang: 'en' | 'hi') => {
+    setSelectedLang(lang);
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   };
 
   const handleExportJson = () => {
@@ -97,10 +201,10 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       
-      {/* 1. IMMEDIATE VERDICT + SCORE + SHORT "WHY" */}
-      <div className={cn('rounded-xl border p-6 sm:p-7 text-left space-y-5', theme.cardBorder)}>
+      {/* 1. IMMEDIATE VERDICT + SCORE */}
+      <div className={cn('rounded-xl border p-6 sm:p-7 text-left space-y-5 shadow-lg', theme.cardBorder)}>
         
-        {/* Top Header: Badge, Domain, Export */}
+        {/* Top Header: Badge, Target Domain, Export */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -116,7 +220,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              {data.identity.claimed_lender || data.categories.website.title || data.categories.digital.domain}
+              {targetTitle}
             </h2>
             <a
               href={data.url}
@@ -130,7 +234,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
           </div>
 
           {/* Score Box */}
-          <div className="flex items-center gap-4 bg-slate-950/70 border border-slate-800 px-5 py-3 rounded-lg shrink-0">
+          <div className="flex items-center gap-4 bg-slate-950/80 border border-slate-800 px-5 py-3 rounded-lg shrink-0">
             <div>
               <div className={cn('text-3xl font-black font-mono', theme.scoreColor)}>
                 {data.risk_score}
@@ -148,22 +252,12 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
           </div>
         </div>
 
-        {/* Short "Why" Highlight Box */}
-        <div className="rounded-lg bg-slate-950/80 border border-slate-800/80 p-4 space-y-1.5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Info className="h-3.5 w-3.5 text-blue-400" />
-            <span>Why this verdict:</span>
-          </div>
-          <p className="text-sm text-slate-200 leading-relaxed font-medium">
-            {getShortWhy()}
-          </p>
-        </div>
-
-        {/* Consumer Action Recommendation */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-300 pt-1">
-          <div>
-            <strong className="text-slate-400 uppercase tracking-wider text-[10px] block">Recommendation:</strong>
-            <span>{data.recommendation}</span>
+        {/* Quick Meta Footer with Export */}
+        <div className="flex items-center justify-between text-xs text-slate-400 pt-0.5">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px]">Domain: <strong className="text-slate-200">{data.categories.digital.domain}</strong></span>
+            <span>•</span>
+            <span className="font-mono text-[11px]">SSL: <strong className={data.categories.digital.https ? 'text-emerald-400' : 'text-rose-400'}>{data.categories.digital.https ? 'HTTPS Verified' : 'Insecure'}</strong></span>
           </div>
 
           <button
@@ -171,21 +265,305 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
             className="inline-flex items-center gap-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 text-xs text-slate-200 shrink-0 font-mono transition-colors"
           >
             <Download className="h-3 w-3" />
-            <span>JSON</span>
+            <span>Export JSON</span>
           </button>
         </div>
 
       </div>
 
-      {/* 2. STRUCTURED DETAILS & TABS */}
-      <div className="space-y-4">
+      {/* 2. 🔊 LISTEN TO YOUR RESULT (CARD DIRECTLY BELOW VERDICT) */}
+      {speechSupported && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5 text-left space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            
+            {/* Audio Header */}
+            <div className="flex items-center gap-2.5">
+              <div className={cn(
+                'h-8 w-8 rounded-lg flex items-center justify-center border transition-colors',
+                isSpeaking ? 'bg-blue-600/20 border-blue-500/50 text-blue-400 animate-pulse' : 'bg-slate-800 border-slate-700 text-slate-300'
+              )}>
+                <Volume2 className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Listen to Your Risk Assessment</span>
+                  {isSpeaking && (
+                    <span className="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-mono bg-blue-950 text-blue-300 border border-blue-800 animate-pulse">
+                      Playing Audio...
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Hear the verdict, primary reasons, and next steps spoken aloud via Web Speech API.
+                </p>
+              </div>
+            </div>
+
+            {/* Language & Play Controls */}
+            <div className="flex items-center gap-2 shrink-0">
+              
+              {/* Language Selector */}
+              <div className="flex items-center rounded-lg bg-slate-950 border border-slate-800 p-0.5 text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => handleLanguageChange('en')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition-colors',
+                    selectedLang === 'en' ? 'bg-slate-800 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'
+                  )}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLanguageChange('hi')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition-colors',
+                    selectedLang === 'hi' ? 'bg-slate-800 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'
+                  )}
+                >
+                  हिन्दी (Hindi)
+                </button>
+              </div>
+
+              {/* Play / Pause Button */}
+              <button
+                type="button"
+                onClick={handleSpeakToggle}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all text-white shadow-sm',
+                  isSpeaking ? 'bg-amber-600 hover:bg-amber-500' : 'bg-blue-600 hover:bg-blue-500'
+                )}
+              >
+                {isSpeaking ? (
+                  <>
+                    <Square className="h-3 w-3 fill-current" />
+                    <span>Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-3 w-3 fill-current" />
+                    <span>Play Audio</span>
+                  </>
+                )}
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. 🔍 PROMINENT "WHY THIS VERDICT?" EVIDENCE CARD */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 text-left space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-md bg-blue-950/60 border border-blue-800/60 flex items-center justify-center text-blue-400">
+              <Info className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">Why This Verdict?</h3>
+              <p className="text-xs text-slate-400">Top forensic risk signals and evidence evaluated by the engine.</p>
+            </div>
+          </div>
+
+          <span className="text-xs font-mono text-slate-400">
+            {data.signals.length} {data.signals.length === 1 ? 'Signal' : 'Signals'} Detected
+          </span>
+        </div>
+
+        {/* Signals List or Positive Evidence List */}
+        {data.signals.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div className="rounded-lg bg-slate-950/70 border border-emerald-900/30 p-3.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Verified Entity Identity</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Official registry record or legitimate domain match confirmed without lookalike patterns.
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-slate-950/70 border border-emerald-900/30 p-3.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Transparency Disclosures</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Privacy policy, terms of service, and grievance redressal mechanisms found on same domain.
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-slate-950/70 border border-emerald-900/30 p-3.5 space-y-1">
+              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Clean Digital Footprint</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Encrypted HTTPS active, zero predatory language, and no suspicious threat intelligence records.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {data.signals.slice(0, 4).map((sig, idx) => {
+              const isHigh = sig.severity === 'HIGH';
+              const isMed = sig.severity === 'MEDIUM';
+
+              return (
+                <div
+                  key={idx}
+                  className="rounded-lg bg-slate-950/70 border border-slate-800/80 p-3.5 sm:p-4 space-y-2"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={cn(
+                        'px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider border shrink-0',
+                        isHigh ? 'bg-rose-950/70 text-rose-300 border-rose-800' :
+                        isMed ? 'bg-amber-950/70 text-amber-300 border-amber-800' :
+                        'bg-slate-800 text-slate-300 border-slate-700'
+                      )}>
+                        {sig.severity}
+                      </span>
+                      <h4 className="text-sm font-bold text-white">
+                        {sig.name}
+                      </h4>
+                    </div>
+
+                    {sig.confidence && (
+                      <span className="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 shrink-0">
+                        {(sig.confidence * 100).toFixed(0)}% Confidence
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                    {sig.explanation}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 4. ⚡ PROMINENT "WHAT SHOULD I DO?" ACTION CHECKLIST CARD */}
+      <div className={cn('rounded-xl border p-5 sm:p-6 text-left space-y-4', theme.cardBorder)}>
+        <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+          <div className="h-7 w-7 rounded-md bg-blue-950/60 border border-blue-800/60 flex items-center justify-center text-blue-400">
+            <CheckSquare className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-white">What Should I Do? (Action Checklist)</h3>
+            <p className="text-xs text-slate-400">Recommended consumer safety steps based on this scan result.</p>
+          </div>
+        </div>
+
+        {/* Action Steps customized by risk level */}
+        <div className="space-y-2.5 text-xs text-slate-200">
+          {data.risk_level === 'HIGH_RISK' && (
+            <>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-rose-950/30 border border-rose-900/40">
+                <AlertOctagon className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-rose-300 block font-semibold">Do NOT Submit Identity or Financial Documents</strong>
+                  <span>Never upload your Aadhaar, PAN card, bank statements, or selfie photos to this domain.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Refuse Advance Fees & OTP Sharing</strong>
+                  <span>Legitimate RBI-registered lenders never demand upfront processing fees or file charges via personal UPI accounts.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <Smartphone className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Deny Mobile Contacts / SMS Permissions</strong>
+                  <span>If prompted on an Android APK, do not grant Contacts, Storage, or SMS access, which predatory apps use for extortion.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <ExternalLink className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Report Suspected Fraud</strong>
+                  <span>Report this domain or loan app directly to the National Cyber Crime Helpline (<strong>1930</strong>) or at <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">cybercrime.gov.in</a>.</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {data.risk_level === 'CAUTION' && (
+            <>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-amber-950/30 border border-amber-900/40">
+                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-amber-300 block font-semibold">Verify Lender Entity Independently</strong>
+                  <span>Check whether this lender is registered on the official Reserve Bank of India (RBI) NBFC directory or Bank portal before proceeding.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <Globe className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Avoid Links Received via Unsolicited SMS / WhatsApp</strong>
+                  <span>Always access the official portal by typing the verified URL directly into your browser rather than clicking promotional broadcast links.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <FileCheck2 className="h-4 w-4 text-slate-300 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Confirm Grievance Redressal & Physical Office</strong>
+                  <span>Ensure the lender provides a working customer care phone number, nodal grievance email, and registered corporate address in India.</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {data.risk_level === 'LOWER_RISK' && (
+            <>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-900/40">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-emerald-300 block font-semibold">Official Domain & Transparency Verified</strong>
+                  <span>This domain matches authoritative records and has active privacy and grievance disclosures.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <FileCheck2 className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Review Key Fact Statement (KFS)</strong>
+                  <span>Always review the interest rate, APR, repayment schedule, and loan agreement carefully before accepting any digital loan sanction.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+                <Shield className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block font-semibold">Standard Security Practice</strong>
+                  <span>LoanShield provides risk assessment based on available digital evidence. It does not certify financial safety or creditworthiness.</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* 5. STRUCTURED FORENSIC DETAILS & TABS */}
+      <div className="space-y-4 pt-2">
         
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 border-b border-slate-800 pb-2 overflow-x-auto">
           {[
-            { id: 'signals', label: 'Evidence Signals', count: data.signals.length },
+            { id: 'signals', label: 'All Evidence Signals', count: data.signals.length },
             { id: 'identity', label: 'Claim vs Reality' },
-            { id: 'reputation', label: 'Reputation & Brand Layer', highlight: Boolean(data.categories.reputation?.threat_record || data.categories.reputation?.brand_impersonation) },
+            { id: 'reputation', label: 'Reputation & Threat Intel', highlight: Boolean(data.categories.reputation?.threat_record || data.categories.reputation?.brand_impersonation) },
             { id: 'transparency', label: 'Transparency Audit' },
             { id: 'regulatory', label: 'Regulatory Data' },
             { id: 'forensics', label: 'Digital Forensics' },
@@ -217,7 +595,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
           })}
         </div>
 
-        {/* TAB 1: EVIDENCE SIGNALS */}
+        {/* TAB 1: ALL EVIDENCE SIGNALS */}
         {activeTab === 'signals' && (
           <div className="space-y-3">
             {data.signals.length === 0 ? (
