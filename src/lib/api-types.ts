@@ -29,6 +29,7 @@ export interface Signal {
   name: string;
   severity: SignalSeverity;
   score: number; // 0 to 1
+  confidence?: number;
   explanation: string;
   evidence: Record<string, unknown>;
 }
@@ -67,6 +68,14 @@ export interface TransparencyAnalysis {
   terms: boolean;
   grievance_mechanism: boolean;
   lender_identity: boolean;
+  contact?: boolean;
+  details?: Record<string, any>;
+  crawled_pages?: Array<{
+    url: string;
+    retrieved: boolean;
+    status_code?: number | null;
+    error?: string | null;
+  }>;
 }
 
 export interface LanguageAnalysis {
@@ -95,8 +104,31 @@ export interface WebsiteRetrievalAnalysis {
   error?: string;
 }
 
+export interface ThreatRecord {
+  domain: string;
+  status: string;
+  category: string;
+  evidence_strength: string;
+  source_type: string;
+  description: string;
+  disclaimer: string;
+}
+
+export interface BrandImpersonationAudit {
+  detected: boolean;
+  is_official: boolean;
+  matched_brand: string | null;
+  expected_official_domain: string | null;
+  similarity_reason: string | null;
+  confidence: number;
+}
+
 export interface ReputationAnalysis {
   status: string;
+  source_type?: string;
+  threat_record?: ThreatRecord | null;
+  brand_impersonation?: BrandImpersonationAudit | null;
+  disclaimer?: string;
 }
 
 export interface RiskCategories {

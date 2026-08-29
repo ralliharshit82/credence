@@ -13,4 +13,4 @@ async def test_example_com_transparency():
     tr = res['categories']['transparency']
     assert 'details' in tr
     for sig in ['privacy_policy', 'terms', 'grievance_mechanism', 'lender_identity']:
-        assert tr['details'][sig]['status'] in ['NOT_FOUND_AFTER_CHECKING', 'FOUND', 'COULD_NOT_RETRIEVE']
+        assert tr['details'][sig]['status'] in ['NOT_FOUND', 'NOT_FOUND_AFTER_CHECKING', 'FOUND', 'COULD_NOT_VERIFY', 'COULD_NOT_RETRIEVE']

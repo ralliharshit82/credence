@@ -1,0 +1,130 @@
+[
+  {
+    "brand_id": "BRAND-SBI",
+    "brand_name": "State Bank of India (SBI)",
+    "keywords": ["sbi", "statebank", "statebankofindia"],
+    "official_domains": [
+      "sbi.co.in",
+      "bank.sbi",
+      "onlinesbi.sbi",
+      "sbicard.com",
+      "sbimf.com",
+      "sbigen.in",
+      "sbilife.co.in"
+    ],
+    "canonical_domain": "sbi.co.in"
+  },
+  {
+    "brand_id": "BRAND-HDFC",
+    "brand_name": "HDFC Bank",
+    "keywords": ["hdfc", "hdfcbank"],
+    "official_domains": [
+      "hdfcbank.com",
+      "hdfc.com",
+      "hdfcfund.com",
+      "hdfcergo.com",
+      "hdfclife.com"
+    ],
+    "canonical_domain": "hdfcbank.com"
+  },
+  {
+    "brand_id": "BRAND-ICICI",
+    "brand_name": "ICICI Bank",
+    "keywords": ["icici", "icicibank"],
+    "official_domains": [
+      "icicibank.com",
+      "icicidirect.com",
+      "iciciprulife.com",
+      "icicilombard.com"
+    ],
+    "canonical_domain": "icicibank.com"
+  },
+  {
+    "brand_id": "BRAND-BAJAJ",
+    "brand_name": "Bajaj Finserv / Bajaj Finance",
+    "keywords": ["bajaj", "bajajfinserv", "bajajfinance"],
+    "official_domains": [
+      "bajajfinserv.in",
+      "bajajfinance.in",
+      "bajajallianz.com"
+    ],
+    "canonical_domain": "bajajfinserv.in"
+  },
+  {
+    "brand_id": "BRAND-AXIS",
+    "brand_name": "Axis Bank",
+    "keywords": ["axis", "axisbank"],
+    "official_domains": [
+      "axisbank.com",
+      "axismf.com"
+    ],
+    "canonical_domain": "axisbank.com"
+  },
+  {
+    "brand_id": "BRAND-KOTAK",
+    "brand_name": "Kotak Mahindra Bank",
+    "keywords": ["kotak", "kotakbank"],
+    "official_domains": [
+      "kotak.com",
+      "kotakmf.com",
+      "kotakcherry.com"
+    ],
+    "canonical_domain": "kotak.com"
+  },
+  {
+    "brand_id": "BRAND-TATA",
+    "brand_name": "Tata Capital",
+    "keywords": ["tatacapital", "tatamotorsfinance"],
+    "official_domains": [
+      "tatacapital.com"
+    ],
+    "canonical_domain": "tatacapital.com"
+  },
+  {
+    "brand_id": "BRAND-MUTHOOT",
+    "brand_name": "Muthoot Finance",
+    "keywords": ["muthoot", "muthootfinance", "muthootfincorp"],
+    "official_domains": [
+      "muthootfinance.com",
+      "muthootfincorp.com"
+    ],
+    "canonical_domain": "muthootfinance.com"
+  },
+  {
+    "brand_id": "BRAND-KREDITBEE",
+    "brand_name": "KreditBee",
+    "keywords": ["kreditbee", "kredit-bee"],
+    "official_domains": [
+      "kreditbee.in"
+    ],
+    "canonical_domain": "kreditbee.in"
+  },
+  {
+    "brand_id": "BRAND-DHANI",
+    "brand_name": "Dhani Services",
+    "keywords": ["dhani", "dhaniloan"],
+    "official_domains": [
+      "dhani.com"
+    ],
+    "canonical_domain": "dhani.com"
+  },
+  {
+    "brand_id": "BRAND-NAVI",
+    "brand_name": "Navi Technologies",
+    "keywords": ["navi"],
+    "official_domains": [
+      "navi.com"
+    ],
+    "canonical_domain": "navi.com"
+  },
+  {
+    "brand_id": "BRAND-MUDRA",
+    "brand_name": "Pradhan Mantri Mudra Yojana (PMMY) / JanSamarth",
+    "keywords": ["mudra", "pmmy", "jansamarth"],
+    "official_domains": [
+      "mudra.org.in",
+      "jansamarth.in"
+    ],
+    "canonical_domain": "mudra.org.in"
+  }
+]

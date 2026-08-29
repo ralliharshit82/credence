@@ -17,10 +17,12 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
-  Flame,
-  Info
+  Info,
+  Layers,
+  Database,
+  Building2
 } from 'lucide-react';
-import { ScanResponse, Signal, SignalSeverity } from '@/lib/api-types';
+import { ScanResponse } from '@/lib/api-types';
 import { cn } from '@/lib/utils';
 
 interface BackendResultsProps {
@@ -29,8 +31,9 @@ interface BackendResultsProps {
 }
 
 export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
-  const [activeTab, setActiveTab] = useState<'signals' | 'identity' | 'transparency' | 'regulatory' | 'forensics' | 'permissions'>('signals');
+  const [activeTab, setActiveTab] = useState<'signals' | 'identity' | 'reputation' | 'transparency' | 'regulatory' | 'forensics' | 'permissions'>('signals');
   const [expandedSignal, setExpandedSignal] = useState<number | null>(0);
+  const [showRawJson, setShowRawJson] = useState<Record<number, boolean>>({});
 
   // Verdict Theme Helpers
   const getTheme = (level: ScanResponse['risk_level']) => {
@@ -69,7 +72,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
   const theme = getTheme(data.risk_level);
   const VerdictIcon = theme.icon;
 
-  // Derive short "Why" summary
+  // Derive short "Why" summary in plain human language
   const getShortWhy = () => {
     if (data.signals.length === 0) {
       return 'No suspicious indicators or predatory patterns were detected on this domain. Essential digital and transparency signals were verified.';
@@ -151,7 +154,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
             <Info className="h-3.5 w-3.5 text-blue-400" />
             <span>Why this verdict:</span>
           </div>
-          <p className="text-sm text-slate-200 leading-relaxed">
+          <p className="text-sm text-slate-200 leading-relaxed font-medium">
             {getShortWhy()}
           </p>
         </div>
@@ -182,6 +185,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
           {[
             { id: 'signals', label: 'Evidence Signals', count: data.signals.length },
             { id: 'identity', label: 'Claim vs Reality' },
+            { id: 'reputation', label: 'Reputation & Brand Layer', highlight: Boolean(data.categories.reputation?.threat_record || data.categories.reputation?.brand_impersonation) },
             { id: 'transparency', label: 'Transparency Audit' },
             { id: 'regulatory', label: 'Regulatory Data' },
             { id: 'forensics', label: 'Digital Forensics' },
@@ -205,6 +209,9 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
                     {tab.count}
                   </span>
                 )}
+                {tab.highlight && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                )}
               </button>
             );
           })}
@@ -224,6 +231,7 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
                 const isExpanded = expandedSignal === idx;
                 const isHigh = sig.severity === 'HIGH';
                 const isMed = sig.severity === 'MEDIUM';
+                const isJsonVisible = !!showRawJson[idx];
 
                 return (
                   <div
@@ -249,24 +257,70 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
                         </h4>
                       </div>
 
-                      <div className="flex items-center gap-2 text-slate-400 text-xs shrink-0">
+                      <div className="flex items-center gap-3 text-slate-400 text-xs shrink-0">
+                        {sig.confidence && (
+                          <span className="hidden sm:inline-block rounded bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-300">
+                            {(sig.confidence * 100).toFixed(0)}% Confidence
+                          </span>
+                        )}
                         <span className="font-mono text-[11px]">Impact: {(sig.score * 100).toFixed(0)}%</span>
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </div>
                     </button>
 
                     {isExpanded && (
-                      <div className="border-t border-slate-800/80 bg-slate-950/50 p-4 space-y-3 text-xs">
-                        <p className="text-slate-300 leading-relaxed">{sig.explanation}</p>
+                      <div className="border-t border-slate-800/80 bg-slate-950/50 p-4 space-y-3.5 text-xs">
                         
-                        <div className="rounded bg-[#090d16] border border-slate-800 p-3 space-y-1">
-                          <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold block">
-                            Forensic Evidence:
+                        {/* WHY IT MATTERS - Human explanation */}
+                        <div className="space-y-1">
+                          <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                            Why this matters:
                           </span>
-                          <pre className="font-mono text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap break-all">
-                            {JSON.stringify(sig.evidence, null, 2)}
-                          </pre>
+                          <p className="text-slate-200 leading-relaxed font-normal">
+                            {sig.explanation}
+                          </p>
                         </div>
+
+                        {/* FORMATTED EVIDENCE BREAKDOWN */}
+                        <div className="rounded-lg bg-slate-900 border border-slate-800 p-3.5 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono uppercase text-blue-400 font-semibold flex items-center gap-1">
+                              <Layers className="h-3 w-3" />
+                              <span>Forensic Evidence Breakdown:</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setShowRawJson((prev) => ({ ...prev, [idx]: !prev[idx] }))}
+                              className="text-[10px] font-mono text-slate-400 hover:text-slate-200 underline"
+                            >
+                              {isJsonVisible ? 'Hide Raw JSON' : 'Show Raw JSON'}
+                            </button>
+                          </div>
+
+                          {/* Structured Key-Value Presentation */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-300">
+                            {Object.entries(sig.evidence)
+                              .filter(([k]) => typeof sig.evidence[k] === 'string' || typeof sig.evidence[k] === 'number' || typeof sig.evidence[k] === 'boolean')
+                              .map(([k, v]) => (
+                                <div key={k} className="flex flex-col bg-slate-950/80 rounded p-2 border border-slate-800/60">
+                                  <span className="text-[10px] uppercase text-slate-400 font-mono font-semibold">
+                                    {k.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className="text-white font-medium break-all">
+                                    {String(v)}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+
+                          {/* Raw JSON Accordion for technical details */}
+                          {isJsonVisible && (
+                            <pre className="mt-2 p-2.5 rounded bg-[#090d16] font-mono text-[11px] text-slate-300 overflow-x-auto whitespace-pre-wrap break-all border border-slate-800">
+                              {JSON.stringify(sig.evidence, null, 2)}
+                            </pre>
+                          )}
+                        </div>
+
                       </div>
                     )}
                   </div>
@@ -283,9 +337,9 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="rounded-lg bg-slate-950/70 border border-slate-800 p-3.5 space-y-1">
-                <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">1. Claimed Lender</span>
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-semibold">1. Claimed / Extracted Lender</span>
                 <div className="font-bold text-white">{data.identity.claimed_lender || 'None declared on page'}</div>
-                <p className="text-slate-400 text-[11px]">Extracted from website headers and disclosures.</p>
+                <p className="text-slate-400 text-[11px]">Extracted from website branding and disclosures.</p>
               </div>
 
               <div className="rounded-lg bg-slate-950/70 border border-slate-800 p-3.5 space-y-1">
@@ -322,6 +376,59 @@ export function BackendResults({ data, isDemo = false }: BackendResultsProps) {
                   )}
                 </div>
                 <p className="text-slate-400 text-[11px]">Target URL matches registered website.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: REPUTATION & BRAND LAYER */}
+        {activeTab === 'reputation' && (
+          <div className="rounded-lg bg-slate-900/60 border border-slate-800 p-5 space-y-4 text-left text-xs">
+            <h3 className="text-sm font-semibold text-white">Brand Impersonation & Historical Threat Intelligence</h3>
+
+            <div className="rounded bg-slate-950/80 border border-slate-800 p-3 text-slate-300 text-[11px]">
+              <strong>Layer Architecture:</strong> Distinguishes <em>Live Website Observation</em> vs <em>External Threat Records</em>. {data.categories.reputation?.disclaimer}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Brand Impersonation Card */}
+              <div className="rounded-lg bg-slate-950/70 border border-slate-800 p-3.5 space-y-2">
+                <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold flex items-center gap-1">
+                  <Building2 className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Brand Lookalike / Impersonation Audit:</span>
+                </span>
+                {data.categories.reputation?.brand_impersonation?.detected ? (
+                  <div className="space-y-1 text-slate-200">
+                    <div>Matched Brand: <strong className="text-white">{data.categories.reputation.brand_impersonation.matched_brand}</strong></div>
+                    <div>Official Domain: <code className="text-emerald-400">{data.categories.reputation.brand_impersonation.expected_official_domain}</code></div>
+                    <div>Confidence: <strong>{(data.categories.reputation.brand_impersonation.confidence * 100).toFixed(0)}%</strong></div>
+                    <p className="text-rose-300 text-[11px] pt-1">
+                      {data.categories.reputation.brand_impersonation.similarity_reason}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-slate-400">No banking or NBFC brand impersonation detected in domain or subdomains.</p>
+                )}
+              </div>
+
+              {/* Threat Intel Card */}
+              <div className="rounded-lg bg-slate-950/70 border border-slate-800 p-3.5 space-y-2">
+                <span className="text-[10px] font-mono uppercase text-slate-400 font-semibold flex items-center gap-1">
+                  <Database className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Historical Threat Record:</span>
+                </span>
+                {data.categories.reputation?.threat_record ? (
+                  <div className="space-y-1 text-slate-200">
+                    <div>Status: <span className="font-mono font-bold text-rose-400">{data.categories.reputation.threat_record.status}</span></div>
+                    <div>Category: <span className="font-mono">{data.categories.reputation.threat_record.category}</span></div>
+                    <div>Source: <span>{data.categories.reputation.threat_record.source_type}</span></div>
+                    <p className="text-slate-300 text-[11px] pt-1 leading-relaxed">
+                      {data.categories.reputation.threat_record.description}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-slate-400">No documented threat intelligence flags found for this target.</p>
+                )}
               </div>
             </div>
           </div>

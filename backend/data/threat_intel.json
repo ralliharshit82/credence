@@ -1,0 +1,45 @@
+{
+  "_disclaimer": "Synthetic demo threat-intelligence data — not a live blacklist.",
+  "records": [
+    {
+      "domain": "sbicf.co.in",
+      "status": "DOCUMENTED_CASE",
+      "category": "LOAN_FRAUD / BRAND_IMPERSONATION",
+      "evidence_strength": "HIGH",
+      "source_type": "PUBLIC_CASE_RECORD",
+      "description": "Historically documented phishing and loan fraud website impersonating State Bank of India / SBI Cards & Finance."
+    },
+    {
+      "domain": "quickrupee.demo",
+      "status": "DOCUMENTED_CASE",
+      "category": "PREDATORY_LENDING / PERMISSION_ABUSE",
+      "evidence_strength": "HIGH",
+      "source_type": "SYNTHETIC_BENCHMARK",
+      "description": "Synthetic benchmark scenario demonstrating excessive permission extraction and unverified identity claims."
+    },
+    {
+      "domain": "hdfc-instant-loan.xyz",
+      "status": "DOCUMENTED_CASE",
+      "category": "BRAND_IMPERSONATION / PHISHING",
+      "evidence_strength": "HIGH",
+      "source_type": "SYNTHETIC_BENCHMARK",
+      "description": "Synthetic look-alike domain impersonating HDFC Bank for unauthorized micro-lending."
+    },
+    {
+      "domain": "bajaj-quickcredit.com",
+      "status": "DOCUMENTED_CASE",
+      "category": "BRAND_IMPERSONATION / UNREGISTERED_LENDER",
+      "evidence_strength": "HIGH",
+      "source_type": "SYNTHETIC_BENCHMARK",
+      "description": "Synthetic look-alike domain impersonating Bajaj Finance with no regulatory backing."
+    },
+    {
+      "domain": "mudra-loan-online.site",
+      "status": "DOCUMENTED_CASE",
+      "category": "GOVERNMENT_SCHEME_PHISHING",
+      "evidence_strength": "HIGH",
+      "source_type": "PUBLIC_CASE_RECORD",
+      "description": "Phishing portal demanding upfront approval fees for Mudra scheme loans."
+    }
+  ]
+}
