@@ -1,5 +1,5 @@
 /**
- * Strict Client-Side URL Validator for LoanShield
+ * Strict Client-Side URL Validator for Credence
  * Rejects malformed strings before sending requests to the backend.
  */
 

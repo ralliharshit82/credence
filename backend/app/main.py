@@ -5,7 +5,7 @@ from app.schemas.scan import ScanRequest, AppScanRequest, ScanResponse
 from app.services.analyzer import analyze, registry
 
 app = FastAPI(
-    title='LoanShield Backend',
+    title='Credence Backend',
     version='0.1.0',
     description='Explainable prototype risk assessment for digital lending websites.'
 )
@@ -32,7 +32,7 @@ app.add_middleware(
 def health():
     return {
         'status': 'ok',
-        'service': 'loanshield-backend',
+        'service': 'credence-backend',
         'mode': 'demo' if os.getenv('DEMO_MODE', 'true').lower() == 'true' else 'live'
     }
 

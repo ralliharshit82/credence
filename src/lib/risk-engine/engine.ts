@@ -21,7 +21,7 @@ export const CATEGORY_WEIGHTS: Record<RiskCategory, number> = {
 };
 
 const DISCLAIMER_TEXT =
-  "LoanShield provides risk intelligence and does not make a legal determination of fraud. Users should independently verify financial entities before sharing personal information or making payments.";
+  "Credence provides risk intelligence and does not make a legal determination of fraud. Users should independently verify financial entities before sharing personal information or making payments.";
 
 /**
  * Calculates raw risk score (0-100) for a category based on its signals
@@ -203,10 +203,10 @@ export function analyzeLender(input: ScanInput): RiskAssessment {
 
   const verdictSummary =
     verdict === 'HIGH_RISK'
-      ? `LoanShield identified ${profile.rawSignals.filter(s => s.severity === 'CRITICAL' || s.severity === 'HIGH').length} critical risk signals including identity conflicts, excessive permission requests, and unverified regulatory claims for ${profile.name}.`
+      ? `Credence identified ${profile.rawSignals.filter(s => s.severity === 'CRITICAL' || s.severity === 'HIGH').length} critical risk signals including identity conflicts, excessive permission requests, and unverified regulatory claims for ${profile.name}.`
       : verdict === 'CAUTION'
-      ? `LoanShield identified incomplete regulatory disclosures and intermediate lead-broker risk signals for ${profile.name}.`
-      : `LoanShield verified that ${profile.name}'s digital footprint, corporate identity, and RBI regulatory standing form a consistent, trustworthy graph.`;
+      ? `Credence identified incomplete regulatory disclosures and intermediate lead-broker risk signals for ${profile.name}.`
+      : `Credence verified that ${profile.name}'s digital footprint, corporate identity, and RBI regulatory standing form a consistent, trustworthy graph.`;
 
   return {
     scanId: profile.id,

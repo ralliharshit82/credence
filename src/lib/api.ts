@@ -82,7 +82,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new ApiError(
-        'LoanShield backend is unavailable. Please make sure the FastAPI backend is running at ' +
+        'Credence backend is unavailable. Please make sure the FastAPI backend is running at ' +
           API_BASE_URL +
           ' and try again.',
         503

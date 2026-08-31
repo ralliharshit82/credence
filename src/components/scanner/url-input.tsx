@@ -137,7 +137,7 @@ export function UrlInput({ initialUrl = '', size = 'large', autoFocus = false, o
             ) : (
               <>
                 <Sparkles className="h-4 w-4 text-blue-200" />
-                <span>Scan with LoanShield</span>
+                <span>Scan with Credence</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}

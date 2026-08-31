@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, ShieldAlert, AlertTriangle, ShieldCheck, ArrowRight, ExternalLink, Filter } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function RecentTable() {
@@ -89,25 +89,25 @@ export function RecentTable() {
   const getVerdictBadge = (verdict: string) => {
     switch (verdict) {
       case 'HIGH_RISK':
-        return { label: 'HIGH RISK', class: 'bg-rose-500/20 text-rose-300 border-rose-500/40' };
+        return { label: 'HIGH RISK', class: 'bg-rose-100 text-rose-800 border-rose-300' };
       case 'CAUTION':
-        return { label: 'CAUTION', class: 'bg-amber-500/20 text-amber-300 border-amber-500/40' };
+        return { label: 'CAUTION', class: 'bg-amber-100 text-amber-800 border-amber-300' };
       case 'LOW_RISK':
       default:
-        return { label: 'VERIFIED', class: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' };
+        return { label: 'VERIFIED', class: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
     }
   };
 
   return (
-    <div className="rounded-3xl bg-[#060a17] border border-slate-800 p-6 sm:p-8 space-y-6 backdrop-blur-xl">
+    <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-sm">
       
       {/* Table Title and Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="text-lg font-bold text-slate-900">
             Recent Digital Lender Investigations
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Real-time feed of newly scanned websites, mobile APK packages, and brokers.
           </p>
         </div>
@@ -122,19 +122,19 @@ export function RecentTable() {
               placeholder="Search lenders, domains..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="rounded-xl bg-slate-900 border border-slate-800 pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 font-mono w-48 sm:w-60"
+              className="rounded-xl bg-slate-50 border border-slate-300 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 font-mono w-48 sm:w-60 shadow-sm"
             />
           </div>
 
           {/* Verdict Filter */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-[11px] font-mono">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-[11px] font-mono">
             {(['ALL', 'HIGH_RISK', 'CAUTION', 'LOW_RISK'] as const).map((v) => (
               <button
                 key={v}
                 onClick={() => setFilterVerdict(v)}
                 className={cn(
-                  'rounded-lg px-2.5 py-1 transition-all',
-                  filterVerdict === v ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-slate-400 hover:text-slate-200'
+                  'rounded-lg px-2.5 py-1 transition-all font-semibold',
+                  filterVerdict === v ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
                 )}
               >
                 {v === 'ALL' ? 'All' : v === 'HIGH_RISK' ? 'High Risk' : v === 'CAUTION' ? 'Caution' : 'Verified'}
@@ -148,7 +148,7 @@ export function RecentTable() {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-slate-800/80 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+            <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">
               <th className="pb-3 pl-2">Target Lender & Domain</th>
               <th className="pb-3">Claimed Entity</th>
               <th className="pb-3">Verdict & Score</th>
@@ -157,28 +157,27 @@ export function RecentTable() {
               <th className="pb-3 text-right pr-2">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50">
+          <tbody className="divide-y divide-slate-100">
             {filteredScans.map((scan) => {
               const badge = getVerdictBadge(scan.verdict);
-              const targetRoute = scan.id.startsWith('high-risk') ? 'high-risk' : scan.id.startsWith('caution') ? 'caution' : 'low-risk';
 
               return (
-                <tr key={scan.id} className="hover:bg-slate-900/40 transition-colors group">
+                <tr key={scan.id} className="hover:bg-slate-50 transition-colors group">
                   
                   {/* Name & URL */}
                   <td className="py-3.5 pl-2">
-                    <div className="font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                       {scan.name}
                     </div>
-                    <div className="font-mono text-[11px] text-cyan-400/80">
+                    <div className="font-mono text-[11px] text-blue-600 font-medium">
                       {scan.url}
                     </div>
                   </td>
 
                   {/* Claimed Entity */}
-                  <td className="py-3.5 font-medium text-slate-300">
+                  <td className="py-3.5 font-medium text-slate-700">
                     <div>{scan.claimedEntity}</div>
-                    <span className="text-[10px] font-mono text-slate-400">({scan.category})</span>
+                    <span className="text-[10px] font-mono text-slate-500">({scan.category})</span>
                   </td>
 
                   {/* Verdict & Score */}
@@ -187,29 +186,29 @@ export function RecentTable() {
                       <span className={cn('inline-flex items-center rounded-md px-2 py-0.5 font-mono text-[10px] font-bold border', badge.class)}>
                         {badge.label}
                       </span>
-                      <span className="font-mono font-bold text-slate-200">
+                      <span className="font-mono font-bold text-slate-800">
                         {scan.score}/100
                       </span>
                     </div>
                   </td>
 
                   {/* Primary Finding */}
-                  <td className="py-3.5 text-slate-300 hidden lg:table-cell max-w-xs truncate text-[11px]">
+                  <td className="py-3.5 text-slate-600 hidden lg:table-cell max-w-xs truncate text-[11px]">
                     {scan.flag}
                   </td>
 
                   {/* Scanned Time */}
-                  <td className="py-3.5 font-mono text-[11px] text-slate-400 hidden sm:table-cell">
+                  <td className="py-3.5 font-mono text-[11px] text-slate-500 hidden sm:table-cell">
                     {scan.time}
                   </td>
 
                   {/* Action */}
                   <td className="py-3.5 text-right pr-2">
                     <Link
-                      href={`/results/${targetRoute}?url=${encodeURIComponent('https://' + scan.url)}`}
-                      className="inline-flex items-center gap-1 rounded-lg bg-slate-800 hover:bg-cyan-500/20 hover:text-cyan-300 border border-slate-700 px-2.5 py-1.5 text-[11px] font-medium text-slate-300 transition-all"
+                      href={`/?url=${encodeURIComponent('https://' + scan.url)}`}
+                      className="inline-flex items-center gap-1 rounded-lg bg-slate-100 hover:bg-blue-600 hover:text-white border border-slate-200 px-2.5 py-1.5 text-[11px] font-bold text-slate-700 transition-all shadow-sm"
                     >
-                      <span>Report</span>
+                      <span>Scan</span>
                       <ArrowRight className="h-3 w-3" />
                     </Link>
                   </td>

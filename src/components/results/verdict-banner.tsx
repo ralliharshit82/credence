@@ -21,7 +21,7 @@ export function VerdictBanner({ assessment }: VerdictBannerProps) {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(assessment, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `loanshield-report-${assessment.lenderName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`);
+    downloadAnchor.setAttribute("download", `credence-report-${assessment.lenderName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -160,7 +160,7 @@ export function VerdictBanner({ assessment }: VerdictBannerProps) {
           {/* Scale Legend */}
           <div className="space-y-2 text-xs font-mono">
             <div className="text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
-              LoanShield Risk Scale
+              Credence Risk Scale
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />

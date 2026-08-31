@@ -81,7 +81,7 @@ export function ScanAnimation({ targetUrl, scenarioId, onComplete }: ScanAnimati
 
     // Initial log
     setLogs([
-      `[SENTINEL-LOG ${new Date().toLocaleTimeString()}] Initializing LoanShield Forensic Scanner for ${targetUrl}`,
+      `[SENTINEL-LOG ${new Date().toLocaleTimeString()}] Initializing Credence Forensic Scanner for ${targetUrl}`,
       `[SENTINEL-LOG ${new Date().toLocaleTimeString()}] Target resolved: ${targetUrl}`
     ]);
 
@@ -120,7 +120,7 @@ export function ScanAnimation({ targetUrl, scenarioId, onComplete }: ScanAnimati
           <div className="space-y-1 max-w-lg">
             <div className="inline-flex items-center gap-2 rounded-full bg-cyan-950/60 border border-cyan-500/40 px-3 py-1 text-xs font-mono text-cyan-300">
               <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>LOANSHIELD MULTI-VECTOR INVESTIGATION</span>
+              <span>CREDENCE MULTI-VECTOR INVESTIGATION</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               Investigating Target Entity
@@ -201,7 +201,7 @@ export function ScanAnimation({ targetUrl, scenarioId, onComplete }: ScanAnimati
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-2">
             <Terminal className="h-3.5 w-3.5 text-cyan-400" />
-            <span>LOANSHIELD FORENSIC TELEMETRY STREAM</span>
+            <span>CREDENCE FORENSIC TELEMETRY STREAM</span>
           </div>
           <span className="text-emerald-400">LIVE FEED</span>
         </div>

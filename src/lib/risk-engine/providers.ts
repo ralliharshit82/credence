@@ -1,5 +1,5 @@
 /**
- * Extensible Provider Interfaces for LoanShield Trust Engine
+ * Extensible Provider Interfaces for Credence Trust Engine
  * 
  * These interfaces define the contract for live API integration.
  * In this hackathon MVP, Mock Providers implement these interfaces,

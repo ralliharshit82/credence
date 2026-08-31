@@ -15,12 +15,9 @@ import {
   XCircle,
   ArrowRight,
   Sparkles,
-  Terminal,
-  Code2,
-  Scan,
-  Lock,
   Layers,
-  HelpCircle
+  HelpCircle,
+  Code2
 } from 'lucide-react';
 
 export default function HowItWorksPage() {
@@ -31,7 +28,7 @@ export default function HowItWorksPage() {
       icon: Search,
       weight: 'Trigger',
       tag: '01. Ingestion',
-      desc: 'User inputs a loan website domain, WhatsApp link, or sideloaded APK landing page.',
+      desc: 'User inputs a loan website domain, WhatsApp link, or sideloaded APK landing page into Credence.',
     },
     {
       id: 2,
@@ -67,7 +64,7 @@ export default function HowItWorksPage() {
     },
     {
       id: 6,
-      title: 'Language & NLP NLP',
+      title: 'Language & NLP Audit',
       icon: MessageSquareWarning,
       weight: '10% Weight',
       tag: '06. Semantics',
@@ -87,81 +84,81 @@ export default function HowItWorksPage() {
       icon: Shield,
       weight: 'Output',
       tag: '08. Decision',
-      desc: 'Outputs Green (Verified), Yellow (Caution), or Red (High Risk) with side-by-side Claim vs Reality and action steps.',
+      desc: 'Outputs Low Risk (Verified), Medium Risk (Caution), or High Risk with side-by-side Claim vs Reality and action steps.',
     },
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10 space-y-12">
       
       {/* Top Hero */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 rounded-full bg-cyan-950/60 border border-cyan-500/40 px-4 py-1.5 text-xs font-mono text-cyan-300">
+      <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 border border-blue-300 px-3.5 py-1 text-xs font-bold text-blue-700 shadow-sm">
           <HelpCircle className="h-3.5 w-3.5" />
           <span>METHODOLOGY & ARCHITECTURE</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-          How LoanShield Works
+        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+          How Credence Works
         </h1>
-        <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
           An explainable verification pipeline designed to answer one question: 
-          <strong className="text-cyan-300"> &ldquo;Does this lender&apos;s identity, claims, behavior, and digital footprint actually make sense?&rdquo;</strong>
+          <strong className="text-blue-600"> &ldquo;Does this lender&apos;s identity, claims, behavior, and digital footprint actually make sense?&rdquo;</strong>
         </p>
       </div>
 
       {/* PIPELINE FLOW VISUALIZER */}
-      <div className="rounded-3xl bg-[#060a17] border border-slate-800 p-6 sm:p-10 space-y-8 backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Layers className="h-5 w-5 text-cyan-400" />
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="h-5 w-5 text-blue-600" />
               <span>The 8-Stage Explainable Verification Pipeline</span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Deterministic sequence from URL ingestion to consumer safety decision.
             </p>
           </div>
-          <span className="font-mono text-xs text-cyan-400 bg-cyan-950/60 border border-cyan-500/40 px-3 py-1 rounded-full">
-            Pipeline v2.4
+          <span className="font-mono text-xs font-bold text-blue-700 bg-blue-100 border border-blue-300 px-3 py-1 rounded-full">
+            Credence v2.4
           </span>
         </div>
 
-        {/* 8-Step Grid with Arrows */}
+        {/* 8-Step Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {pipelineSteps.map((step) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.id}
-                className="relative rounded-2xl bg-slate-900/60 border border-slate-800 p-5 space-y-3 hover:border-cyan-500/40 transition-all flex flex-col justify-between"
+                className="relative rounded-2xl bg-slate-50 border border-slate-200 p-4 space-y-3 hover:border-blue-300 transition-all flex flex-col justify-between shadow-sm"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-cyan-300 border border-slate-700">
+                    <span className="rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-mono font-bold text-blue-700 border border-blue-200">
                       {step.tag}
                     </span>
-                    <span className="text-[10px] font-mono font-bold text-slate-400">
+                    <span className="text-[10px] font-mono font-bold text-slate-500">
                       {step.weight}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2.5 pt-1">
-                    <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0">
+                    <div className="p-2 rounded-xl bg-blue-100 border border-blue-200 text-blue-600 shrink-0">
                       <Icon className="h-4 w-4" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">
+                    <h3 className="text-sm font-bold text-slate-900">
                       {step.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {step.desc}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-800/80 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-200 text-[10px] font-mono text-slate-500 flex items-center justify-between">
                   <span>Step 0{step.id}</span>
-                  <ArrowRight className="h-3 w-3 text-cyan-400" />
+                  <ArrowRight className="h-3 w-3 text-blue-600" />
                 </div>
               </div>
             );
@@ -170,40 +167,40 @@ export default function HowItWorksPage() {
       </div>
 
       {/* WHY BLACKLISTS FAIL COMPARISON */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Why Blacklists Fail */}
-        <div className="rounded-3xl bg-rose-950/15 border border-rose-500/30 p-6 sm:p-8 space-y-6 backdrop-blur-xl">
+        <div className="rounded-3xl bg-rose-50 border border-rose-200 p-6 sm:p-7 space-y-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 shrink-0">
+            <div className="p-2.5 rounded-2xl bg-rose-100 border border-rose-300 text-rose-700 shrink-0">
               <XCircle className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-700">
                 THE STATIC DATABASE FLAW
               </span>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-lg font-bold text-slate-900">
                 Why Traditional Blacklists Fail
               </h3>
             </div>
           </div>
 
-          <div className="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-            <div className="flex items-start gap-3">
+          <div className="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="flex items-start gap-2.5">
               <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0 mt-1.5" />
               <p>
                 <strong>Zero-Day Scam Domains:</strong> Fraud syndicates purchase 50+ disposable domains daily for less than $3 each. By the time a URL appears on a blacklist, victims have already lost money.
               </p>
             </div>
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2.5">
               <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0 mt-1.5" />
               <p>
                 <strong>Regulatory Identity Theft:</strong> Scammers lift the real CIN and RBI registration number of legitimate dormant NBFCs. Simple registry lookups falsely say &ldquo;Yes, this registration exists!&rdquo;
               </p>
             </div>
 
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2.5">
               <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0 mt-1.5" />
               <p>
                 <strong>Sideloaded APK Distribution:</strong> Scams bypass Google Play Store security screenings by distributing apps directly via SMS and WhatsApp APK links.
@@ -212,39 +209,39 @@ export default function HowItWorksPage() {
           </div>
         </div>
 
-        {/* Why LoanShield Succeeds */}
-        <div className="rounded-3xl bg-cyan-950/20 border border-cyan-500/40 p-6 sm:p-8 space-y-6 backdrop-blur-xl shadow-[0_0_40px_rgba(6,182,212,0.1)]">
+        {/* Why Credence Succeeds */}
+        <div className="rounded-3xl bg-blue-50 border border-blue-200 p-6 sm:p-7 space-y-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 shrink-0">
+            <div className="p-2.5 rounded-2xl bg-blue-100 border border-blue-300 text-blue-700 shrink-0">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700">
                 THE STRUCTURAL COHERENCE ADVANTAGE
               </span>
-              <h3 className="text-xl font-bold text-white">
-                Why LoanShield Succeeds
+              <h3 className="text-lg font-bold text-slate-900">
+                Why Credence Succeeds
               </h3>
             </div>
           </div>
 
-          <div className="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-            <div className="flex items-start gap-3">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
+          <div className="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+            <div className="flex items-start gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
               <p>
-                <strong>Identity Graph Association:</strong> LoanShield doesn&apos;t just check if an entity exists — it verifies if <em>this specific URL and APK</em> are legitimately connected to that entity.
+                <strong>Identity Graph Association:</strong> Credence doesn&apos;t just check if an entity exists — it verifies if <em>this specific URL and APK</em> are legitimately connected to that entity.
               </p>
             </div>
 
-            <div className="flex items-start gap-3">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
+            <div className="flex items-start gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
               <p>
                 <strong>Multi-Vector Correlation:</strong> Combines domain creation timestamps, APK permission scraping, free webmail indicators, and NLP predatory claim detection.
               </p>
             </div>
 
-            <div className="flex items-start gap-3">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 shrink-0 mt-1.5" />
+            <div className="flex items-start gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
               <p>
                 <strong>Transparent Explainability:</strong> Never returns a black-box verdict. Users see exactly <em>why</em> a score was assigned with verifiable evidence.
               </p>
@@ -254,72 +251,19 @@ export default function HowItWorksPage() {
 
       </div>
 
-      {/* ARCHITECTURE & API INTEGRATION DOCUMENTATION */}
-      <div className="rounded-3xl bg-[#060a17] border border-slate-800 p-6 sm:p-10 space-y-6 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 shrink-0">
-            <Code2 className="h-6 w-6" />
-          </div>
-          <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400">
-              DEVELOPER & JUDGE SPECIFICATIONS
-            </span>
-            <h3 className="text-xl font-bold text-white">
-              Extensible Provider Architecture
-            </h3>
-          </div>
+      {/* CTA Bar */}
+      <div className="rounded-2xl bg-white border border-slate-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        <div>
+          <h3 className="text-base font-bold text-slate-900">Ready to audit a digital lender URL?</h3>
+          <p className="text-xs text-slate-600">Scan any link right on the Credence homepage.</p>
         </div>
-
-        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          LoanShield is engineered with decoupled TypeScript Provider interfaces located in <code className="text-cyan-300 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 font-mono">src/lib/risk-engine/providers.ts</code>. In this hackathon build, realistic deterministic mock engines power the pipeline, which can be swapped for live enterprise APIs without changing the user interface:
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-          
-          <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-4 space-y-2 text-xs">
-            <div className="font-mono text-cyan-400 font-bold">IRegulatoryProvider</div>
-            <p className="text-slate-300 text-[11px]">
-              Plugs into Reserve Bank of India (RBI) Regulated Entities Registry & Ministry of Corporate Affairs (MCA) API.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-4 space-y-2 text-xs">
-            <div className="font-mono text-cyan-400 font-bold">IForensicsProvider</div>
-            <p className="text-slate-300 text-[11px]">
-              Plugs into WhoisXML, SecurityTrails, Censys, and Let&apos;s Encrypt / DigiCert CT log monitoring.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-4 space-y-2 text-xs">
-            <div className="font-mono text-cyan-400 font-bold">IAppStoreProvider</div>
-            <p className="text-slate-300 text-[11px]">
-              Plugs into Google Play Developer API & static APK decompiler tools to extract AndroidManifest.xml.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-4 space-y-2 text-xs">
-            <div className="font-mono text-cyan-400 font-bold">ILanguageProvider</div>
-            <p className="text-slate-300 text-[11px]">
-              Plugs into Google Gemini or OpenAI LLM API for real-time predatory lending claim categorization.
-            </p>
-          </div>
-
-        </div>
-
-        {/* CTA Bar */}
-        <div className="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-slate-400">
-            Ready to test LoanShield on real or benchmark lending links?
-          </div>
-          <Link
-            href="/scan"
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-500 transition-all hover:scale-105"
-          >
-            <Scan className="h-4 w-4" />
-            <span>Launch Scanner Now</span>
-          </Link>
-        </div>
-
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all"
+        >
+          <Sparkles className="h-4 w-4" />
+          <span>Go to Home Scanner</span>
+        </Link>
       </div>
 
     </div>

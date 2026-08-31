@@ -235,7 +235,7 @@ function ResultsContent({ params }: PageProps) {
               Identity Graph & Corporate Traceability
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              LoanShield maps the end-to-end relationship from the user link to the legal entity, detecting brand impersonation and shell infrastructures.
+              Credence maps the end-to-end relationship from the user link to the legal entity, detecting brand impersonation and shell infrastructures.
             </p>
           </div>
           <IdentityGraph data={assessment.identityGraph} />

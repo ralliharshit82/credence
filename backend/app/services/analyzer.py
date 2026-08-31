@@ -562,7 +562,7 @@ async def analyze(url: str, permissions=None, purpose: str = 'LOAN APPLICATION')
     max_bytes = int(os.getenv('MAX_RESPONSE_BYTES', '1000000'))
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 LoanShield/0.1'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Credence/0.1'
     }
     
     # 1. Fetch main page and audit transparency
@@ -864,5 +864,5 @@ async def analyze(url: str, permissions=None, purpose: str = 'LOAN APPLICATION')
             }
         },
         'recommendation': rec,
-        'disclaimer': 'LoanShield provides a risk assessment based on available evidence. It does not certify that a lender is safe or fraudulent.'
+        'disclaimer': 'Credence provides a risk assessment based on available evidence. It does not certify that a lender is safe or fraudulent.'
     }
