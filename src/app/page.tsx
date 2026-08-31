@@ -14,6 +14,7 @@ import {
 import { ScanResponse } from '@/lib/api-types';
 import { scanWebsite, getDemoScenario, ApiError } from '@/lib/api';
 import { validateScanUrl } from '@/lib/url-validator';
+import { saveScanToHistory } from '@/lib/scan-history';
 import { BackendResults } from '@/components/results/backend-results';
 
 function HomePageContent() {
@@ -74,6 +75,7 @@ function HomePageContent() {
 
     try {
       const response = await scanWebsite(cleanUrl);
+      saveScanToHistory(response);
       setTimeout(() => {
         clearInterval(stageTimer);
         setIsScanning(false);
