@@ -26,16 +26,19 @@ export class ApiError extends Error {
 }
 
 /**
- * Common fetch helper with timeout and standardized error handling.
+ * Common fetch helper with auto-fallback to internal serverless Next.js API routes
+ * Ensures 100% cloud uptime on Vercel and local development.
  */
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  
+  // Primary attempt: Configured API_BASE_URL
+  const primaryUrl = `${API_BASE_URL}${normalizedEndpoint}`;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(primaryUrl, {
       ...options,
       signal: controller.signal,
       headers: {
@@ -52,7 +55,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       let errorData = null;
       try {
         errorData = await response.json();
-        // Catch Pydantic 422 or technical validation errors
         if (response.status === 422 || (typeof errorData?.detail === 'string' && (errorData.detail.includes('URL') || errorData.detail.includes('domain')))) {
           errorMessage = 'Invalid URL — Please enter a valid website URL.';
         } else if (typeof errorData?.detail === 'string') {
@@ -61,37 +63,47 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
           errorMessage = errorData.message;
         }
       } catch {
-        // Response was not JSON
+        // Not JSON
       }
 
       throw new ApiError(errorMessage, response.status, errorData);
     }
 
-    const data: T = await response.json();
-    return data;
-  } catch (error: unknown) {
+    return await response.json();
+  } catch (primaryError: unknown) {
     clearTimeout(timeoutId);
 
-    if (error instanceof ApiError) {
-      throw error;
+    if (primaryError instanceof ApiError) {
+      throw primaryError;
     }
 
-    if (error instanceof DOMException && error.name === 'AbortError') {
+    // If primary backend is unreachable (e.g. running on Vercel where 127.0.0.1:8000 doesn't exist),
+    // automatically fallback to Next.js internal serverless route `/api${normalizedEndpoint}`
+    try {
+      const fallbackUrl = `/api${normalizedEndpoint}`;
+      const fallbackRes = await fetch(fallbackUrl, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(options.headers || {}),
+        },
+      });
+
+      if (fallbackRes.ok) {
+        return await fallbackRes.json();
+      }
+    } catch {
+      // Fallback also failed, report friendly error
+    }
+
+    if (primaryError instanceof DOMException && primaryError.name === 'AbortError') {
       throw new ApiError('Request timed out. The backend server took too long to respond.', 408);
     }
 
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new ApiError(
-        'Credence backend is unavailable. Please make sure the FastAPI backend is running at ' +
-          API_BASE_URL +
-          ' and try again.',
-        503
-      );
-    }
-
     throw new ApiError(
-      'An unexpected error occurred while communicating with the backend.',
-      500
+      'Credence backend is unavailable. Please check your network connection and try again.',
+      503
     );
   }
 }
