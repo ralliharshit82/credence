@@ -98,5 +98,34 @@ Credence is engineered to be deployed directly to **Vercel** with zero configura
 
 ---
 
+## 🧪 Live Evaluation Scenarios (For Judges & Evaluators)
+
+Test these verified scenarios directly in the Credence scanner to evaluate multi-vector forensic detection:
+
+### 🟢 1. Low Risk (Verified Banks & Regulated NBFCs)
+| Target URL | Institution | Key Forensic Signals | Verdict |
+| :--- | :--- | :--- | :---: |
+| `https://sbi.co.in` | State Bank of India | Authoritative official banking domain + full legal disclosures | **LOW RISK (0–10)** |
+| `https://finzy.com` | Bridge Fintech NBFC-P2P | Registered P2P lending platform, SSL enforced, legal policies | **LOW RISK (0–15)** |
+| `https://bajajfinserv.in` | Bajaj Finance / Finserv | Official NBFC corporate portal with verified governance | **LOW RISK (0–12)** |
+| `https://ibanking.iob.bank.in` | Indian Overseas Bank | IDRBT-governed `.bank.in` restricted domain under RBI mandate | **LOW RISK (4)** |
+| `https://jansamarth.in` | JanSamarth National Portal | Verified Government of India credit-linked subsidy platform | **LOW RISK (12)** |
+
+### 🟡 2. Medium Risk / Caution (Unverified Brokers / DSAs)
+| Target URL | Risk Pattern | Key Forensic Signals | Verdict |
+| :--- | :--- | :--- | :---: |
+| `https://example.com` | Unverified Generic Domain | Missing mandatory grievance escalation and regulatory registration | **MEDIUM RISK (45)** |
+| Generic DSA Portals | Unlinked Lead Intermediary | Opaque partner NBFC disclosures without direct regulatory match | **MEDIUM RISK (35–55)** |
+
+### 🔴 3. High Risk (Brand Impersonators & Scam Vectors)
+| Target URL | Fraud Pattern | Key Forensic Signals | Verdict |
+| :--- | :--- | :--- | :---: |
+| `https://sbicf.co.in` | **SBI Brand Lookalike** | Lookalike typosquatting combining bank brand with loan keywords | **HIGH RISK (90)** |
+| `https://quickrupee.demo` | **Predatory Loan App** | Invasive APK permissions (Contacts, SMS scraping) + advance fee demand | **HIGH RISK (92)** |
+| `https://hdfc-instant-loan.xyz` | **Disposable .XYZ Domain** | Fake NBFC claim on untrusted TLD imitating HDFC institution | **HIGH RISK (88)** |
+| `https://bajaj-fast-loan.online` | **Unauthorized Lookalike** | Brand imitation claiming guaranteed loans without KYC | **HIGH RISK (88)** |
+
+---
+
 ## 📄 License
 MIT License. Developed for Next-Gen Fintech Safety & Trust.
