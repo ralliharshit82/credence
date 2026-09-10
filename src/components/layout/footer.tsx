@@ -87,8 +87,6 @@ export function Footer() {
             <Link href="/how-it-works" className="hover:text-slate-900 font-bold">Methodology</Link>
             <span>•</span>
             <Link href="/dashboard" className="hover:text-slate-900 font-bold">Threat Intel</Link>
-            <span>•</span>
-            <span className="text-blue-700 font-black">Build $ Bank Edition</span>
           </div>
         </div>
       </div>

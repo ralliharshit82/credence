@@ -109,11 +109,6 @@ function HomePageContent() {
         
         {/* Presentation Header Block */}
         <div className="space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100/90 border border-blue-300 px-4 py-1.5 text-xs font-black text-blue-700 shadow-sm">
-            <Shield className="h-4 w-4 text-blue-600" />
-            <span>Build $ Bank • Problem Statement</span>
-          </div>
-
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-blue-600 uppercase flex items-center justify-center gap-3">
             <span>CREDENCE</span>
             <div className="inline-flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30">
@@ -121,12 +116,8 @@ function HomePageContent() {
             </div>
           </h1>
 
-          <div className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-slate-800">
-            PROBLEM STATEMENT: VERIFYING LEGITIMATE LENDERS
-          </div>
-
           <p className="text-sm sm:text-base italic text-slate-700 max-w-2xl mx-auto leading-relaxed border-b border-blue-200 pb-3 font-medium">
-            An explainable trust engine for detecting fraudulent digital lenders - before you trust them.
+            An explainable trust engine for detecting fraudulent digital lenders — before you trust them.
           </p>
         </div>
 
