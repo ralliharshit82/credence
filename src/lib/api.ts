@@ -35,7 +35,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   // Primary attempt: Configured API_BASE_URL
   const primaryUrl = `${API_BASE_URL}${normalizedEndpoint}`;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
 
   try {
     const response = await fetch(primaryUrl, {

@@ -126,5 +126,86 @@
       "jansamarth.in"
     ],
     "canonical_domain": "mudra.org.in"
+  },
+  {
+    "brand_id": "BRAND-IOB",
+    "brand_name": "Indian Overseas Bank (IOB)",
+    "keywords": ["iob", "indianoverseasbank"],
+    "official_domains": [
+      "iob.in",
+      "iob.bank.in",
+      "ibanking.iob.bank.in"
+    ],
+    "canonical_domain": "iob.in"
+  },
+  {
+    "brand_id": "BRAND-FINZY",
+    "brand_name": "Finzy (Bridge Fintech NBFC-P2P)",
+    "keywords": ["finzy", "bridgefintech"],
+    "official_domains": [
+      "finzy.com"
+    ],
+    "canonical_domain": "finzy.com"
+  },
+  {
+    "brand_id": "BRAND-PNB",
+    "brand_name": "Punjab National Bank (PNB)",
+    "keywords": ["pnb", "punjabnationalbank"],
+    "official_domains": [
+      "pnbindia.in",
+      "pnb.bank.in",
+      "netpnb.com"
+    ],
+    "canonical_domain": "pnbindia.in"
+  },
+  {
+    "brand_id": "BRAND-BOB",
+    "brand_name": "Bank of Baroda",
+    "keywords": ["bankofbaroda", "bob"],
+    "official_domains": [
+      "bankofbaroda.in",
+      "bob.bank.in",
+      "bobibanking.com"
+    ],
+    "canonical_domain": "bankofbaroda.in"
+  },
+  {
+    "brand_id": "BRAND-CANARA",
+    "brand_name": "Canara Bank",
+    "keywords": ["canarabank", "canarabank.in"],
+    "official_domains": [
+      "canarabank.com",
+      "canarabank.bank.in"
+    ],
+    "canonical_domain": "canarabank.com"
+  },
+  {
+    "brand_id": "BRAND-UNION",
+    "brand_name": "Union Bank of India",
+    "keywords": ["unionbank", "unionbankofindia"],
+    "official_domains": [
+      "unionbankofindia.co.in",
+      "unionbank.bank.in"
+    ],
+    "canonical_domain": "unionbankofindia.co.in"
+  },
+  {
+    "brand_id": "BRAND-FAIRCENT",
+    "brand_name": "Faircent (Club60 NBFC-P2P)",
+    "keywords": ["faircent"],
+    "official_domains": [
+      "faircent.com",
+      "faircent.in"
+    ],
+    "canonical_domain": "faircent.com"
+  },
+  {
+    "brand_id": "BRAND-LENDINGKART",
+    "brand_name": "Lendingkart Finance",
+    "keywords": ["lendingkart"],
+    "official_domains": [
+      "lendingkart.com"
+    ],
+    "canonical_domain": "lendingkart.com"
   }
 ]

@@ -100,6 +100,18 @@ def detect_brand_impersonation(target_url: str, text: str = '', title: str = '')
 
     loan_keywords = ['cf', 'loan', 'loans', 'credit', 'instant', 'finance', 'apply', 'online', 'fast', 'quick', 'direct', 'fund', 'funds', 'cash', 'money', 'yojana', 'fin', 'pay']
 
+    # 0. Authoritative IDRBT / RBI .bank.in & .gov.in Domain Match
+    if hostname.endswith('.bank.in') or reg_dom.endswith('.bank.in') or hostname.endswith('.gov.in') or reg_dom.endswith('.gov.in'):
+        bank_code = stem.upper() if stem else 'Regulated Bank'
+        return {
+            'detected': True,
+            'is_official': True,
+            'matched_brand': f"{bank_code} (IDRBT / RBI Scheduled Bank)",
+            'expected_official_domain': hostname,
+            'similarity_reason': "Authoritative .bank.in domain strictly restricted to RBI-regulated Indian banking institutions.",
+            'confidence': 1.0
+        }
+
     for brand in brands:
         official_domains = [d.lower() for d in brand.get('official_domains', [])]
         
@@ -795,10 +807,11 @@ async def analyze(url: str, permissions=None, purpose: str = 'LOAN APPLICATION')
         evidence_strength = 'LOW'
 
     # Ensure LOWER_RISK requires sufficient positive evidence
-    # If website is unretrieved or no positive verified signals exist, clamp score to at least CAUTION
-    if not w.get('retrieved') and not brand_audit.get('is_official'):
+    if brand_audit.get('is_official'):
+        score = min(score, 12)
+    elif not w.get('retrieved'):
         score = max(score, 35)
-    elif not brand_audit.get('is_official') and not ident['association_verified'] and found_transparency_count < 3 and score < 35:
+    elif not ident['association_verified'] and found_transparency_count == 0 and score < 35:
         score = max(score, 35)
 
     score = min(100, round(score))
